@@ -52,13 +52,15 @@ object Ex0Wordcount {
     // The philosophy: we want to attribute the number 1 to each word: so we create couples (word, 1).
     // Hint: look at the mapToPair method
     // TODO write code here
+    val couples = tweets.map(word => (word, 1))
 
     // Step 2: reducer step
     // The philosophy: now you have a couple (key, value) where the key is a word, you want to aggregate the value for each word.
     // So you will use a reducer function.
     // Hint: the Spark API provides some reduce methods
     // TODO write code here
-    null
+    val wordCounts = couples.reduceByKey((count1, count2) => count1 + count2)
+    wordCounts
 
   }
 
@@ -70,7 +72,8 @@ object Ex0Wordcount {
 
     // Hint: the Spark API provides a filter method
     // TODO write code here
-    null
+    val tweetsMoreThanFour = tweets.filter(_._2 > 4)
+    tweetsMoreThanFour
   }
 
 }

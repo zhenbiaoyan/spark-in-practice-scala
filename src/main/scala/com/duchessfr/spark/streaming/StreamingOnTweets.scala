@@ -80,7 +80,7 @@ object StreamingOnTweets extends App {
     // Here print the status's text: see the Status class
     // Hint: use the print method
     // TODO write code here
-
+    status.print()
 
     // Find the 10 most popular Hashtag in the last minute
 
@@ -88,18 +88,24 @@ object StreamingOnTweets extends App {
     // stream is like a sequence of RDD so you can do all the operation you did in the first part of the hands-on
     // Hint: think about what you did in the Hashtagmining part
     // TODO write code here
-    val hashTags = null
+    val hashTags = tweetsStream.flatMap(status => status.getText.split(" ").filter(_.startsWith("#")).filter(_.length > 1))
 
     // Now here, find the 10 most popular hashtags in a 60 seconds window
     // Hint: look at the reduceByKeyAndWindow function in the spark doc.
     // Reduce last 60 seconds of data
     // Hint: look at the transform function to operate on the DStream
     // TODO write code here
-    val top10 = null
+    val top10 = hashTags.map(x => (x, 1)).reduceByKeyAndWindow((_ + _), Seconds(60)).map{case (topic, count) => (count, topic)}.transform(_.sortByKey(false))
 
     // and return the 10 most populars
     // Hint: loop on the RDD and take the 10 most popular
     // TODO write code here
+    top10.foreachRDD{ rdd =>
+      val topList = rdd.take(10)
+      topList.foreach{
+        case (count, tag) => println(s"$tag: $count")
+      }
+    }
 
     // we need to tell the context to start running the computation we have setup
     // it won't work if you don't add this!
